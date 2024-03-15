@@ -1,0 +1,33 @@
+version: "3.5"
+services:
+  tvheadend:
+    image: linuxserver/tvheadend:arm32v7-version-02987438
+    platform: linux/arm/v7
+    container_name: tvheadend
+    environment:
+      - PUID=1001
+      - PGID=1001
+      - TZ=Etc/UTC
+      - RUN_OPTS= #optional
+    volumes:
+      - /var/local/TVHeadend/data:/config
+      - /var/local/TVHeadend/recordings:/recordings
+    network_mode: host
+    restart: unless-stopped
+  jellyfin:
+    image: linuxserver/jellyfin:nightly-version-20230629.8-unstable
+    platform: linux/armv7
+    container_name: jellyfin
+    network_mode: host
+    volumes:
+      - /var/local/jellyfin/config:/config
+      - /var/local/jellyfin/cache:/cache
+    devices:
+      - /dev/vchiq:/dev/vchiq
+    restart: 'unless-stopped'
+    # Optional - alternative address used for autodiscovery
+    environment:
+      - JELLYFIN_PublishedServerUrl=http://192.168.0.173:8096
+    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
